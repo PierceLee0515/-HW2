@@ -2,12 +2,14 @@ name: Daily Picsum Crawler
 
 on:
   schedule:
-    - cron: '0 0 * * *'  # 每天自動觸發一次
-  workflow_dispatch:      # 支援手動觸發
+    - cron: '0 0 * * *'
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write  # 給予 Actions 寫入權限
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -22,3 +24,11 @@ jobs:
 
       - name: Run script
         run: python api.py
+
+      - name: Commit and Push
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add picsum_data.json
+          git commit -m "Auto-update picsum data" || echo "No changes to commit"
+          git push
